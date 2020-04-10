@@ -19,8 +19,7 @@ def get_label(file_path):
         first_num = tf.strings.substr(label, 0, 1)
         label = tf.strings.join(['0', first_num])
 
-    label = int(label)
-    return label
+    return int(label)
 
 
 def process_image(image_file):
