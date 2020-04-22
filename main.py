@@ -85,5 +85,6 @@ model.add(layers.Dense(512, activation='relu', name='dense-1'))
 model.add(layers.Dense(128, activation='relu', name='dense-2'))
 model.add(layers.Dense(100, activation='softmax', name='out'))
 
+model.summary()
 model.compile(optimizer=opt, loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 model.fit(train_data, epochs=epochs, validation_data=test_data, callbacks=[tbcb])
