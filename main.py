@@ -1,3 +1,4 @@
+import datetime
 import gc
 import os
 
@@ -66,12 +67,13 @@ test_data = dataset.skip(train_size).batch(batch_size).prefetch(1)
 del dataset
 gc.collect()
 
-input_shape = (128, 128, 3)
-tbcb = TensorBoard(log_dir='log_dir', update_freq='batch', histogram_freq=1)
+log_dir = os.path.join(os.path.abspath('log_dir'), datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+tbcb = TensorBoard(log_dir=log_dir, update_freq='batch', histogram_freq=1)
+
 opt = keras.optimizers.Adam()
 
 model = keras.models.Sequential()
-model.add(layers.Input(input_shape, name='input'))
+model.add(layers.Input((128, 128, 3), name='input'))
 model.add(layers.Conv2D(32, (3, 3), activation='relu', name='conv-1'))
 model.add(layers.MaxPooling2D((2, 2), name='maxpool-1'))
 model.add(layers.Conv2D(64, (3, 3), activation='relu', name='conv-2'))
