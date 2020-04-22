@@ -3,9 +3,8 @@ import os
 
 import tensorflow as tf
 import tensorflow.keras as keras
+from tensorflow.keras import layers
 from tensorflow.keras.callbacks import TensorBoard
-
-import cresnet
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 assert tf.__version__.startswith('2.')
@@ -38,7 +37,7 @@ def load_image_label(image_file):
     return image, label
 
 
-# todo this method is not uset yet
+# todo this method is not used
 def image_augmentation(image, label):
     image - tf.image.resize_with_crop_or_pad(image, 136, 136)
     image = tf.image.random_crop(image, [128, 128, 3])
@@ -67,12 +66,22 @@ test_data = dataset.skip(train_size).batch(batch_size).prefetch(1)
 del dataset
 gc.collect()
 
-tbcb = TensorBoard(log_dir='log_dir', update_freq='batch', histogram_freq=1)
-
 input_shape = (128, 128, 3)
-img_input = keras.layers.Input(shape=input_shape)
+tbcb = TensorBoard(log_dir='log_dir', update_freq='batch', histogram_freq=1)
 opt = keras.optimizers.Adam()
 
-model = cresnet.resnet56(img_input=img_input, classes=100)
+model = keras.models.Sequential()
+model.add(layers.Input(input_shape, name='input'))
+model.add(layers.Conv2D(32, (3, 3), activation='relu', name='conv-1'))
+model.add(layers.MaxPooling2D((2, 2), name='maxpool-1'))
+model.add(layers.Conv2D(64, (3, 3), activation='relu', name='conv-2'))
+model.add(layers.MaxPooling2D((2, 2), name='maxpool-2'))
+model.add(layers.Conv2D(64, (3, 3), activation='relu', name='conv-3'))
+
+model.add(layers.Flatten(name='flatten'))
+model.add(layers.Dense(512, activation='relu', name='dense-1'))
+model.add(layers.Dense(128, activation='relu', name='dense-2'))
+model.add(layers.Dense(100, activation='softmax', name='out'))
+
 model.compile(optimizer=opt, loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 model.fit(train_data, epochs=epochs, validation_data=test_data, callbacks=[tbcb])
